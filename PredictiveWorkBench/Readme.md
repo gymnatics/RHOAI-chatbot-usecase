@@ -1,1 +1,1 @@
-# This is the work bench for our prediction model.
+This is the work bench for our prediction model.
