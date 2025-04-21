@@ -57,6 +57,25 @@ yaml
 Copy
 Edit
 
+### 📚 Dataset Description: GitHub Issue Helpdesk Conversations
+
+This dataset contains extracted and cleaned conversations from GitHub issue threads, tailored for training and evaluating AI-driven helpdesk assistants. Each row represents an individual response within an issue thread, accompanied by metadata to preserve conversational context. The original data can be found on Kaggle through the following link: https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets 
+
+#### 🔑 Key Fields
+- **`issue_id`**: Unique identifier for each GitHub issue thread.
+- **`answer_id`**: Sequential index of a reply within its thread (e.g., 0 for first reply).
+- **`issue_body`**: The original problem description submitted by the user, cleaned of markdown, URLs, and user mentions.
+- **`answer_body`**: The corresponding reply or discussion entry, also cleaned for consistency.
+- **`author`**: GitHub username of the respondent.
+- **`creation_time`**: Timestamp of when the response was posted.
+
+#### 🧼 Cleaning Highlights
+- Replaced URLs with `<link>`.
+- Removed GitHub mentions (`@user`) and issue references (`#123`).
+- Collapsed unnecessary whitespace while preserving code snippets and markdown structure.
+
+This format is ideal for building LLM-powered Retrieval-Augmented Generation (RAG) systems or training dialogue agents to assist with developer support and issue resolution.
+
 ## 🧪 Example Use Case
 
 > 🗨️ *"What does this issue about Angular's Router error mean and how do I fix it?"*
