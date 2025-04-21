@@ -1,0 +1,35 @@
+# Core data processing
+pandas
+numpy
+
+# EDA (optional, good for exploration but not for prod)
+# seaborn
+# matplotlib
+# missingno
+# scipy
+# statsmodels
+
+# ML & NLP
+scikit-learn
+nltk
+
+# Embedding models
+sentence-transformers
+transformers
+accelerate
+
+# Vector database
+
+
+# Optional helpers
+tqdm
+python-dotenv
+
+# Pipeline orchestration
+langchain
+
+# PyTorch (explicit versioning)
+torch
+
+# Frontend UI
+streamlit
