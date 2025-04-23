@@ -1,0 +1,20 @@
+EXPOSE 8051
+
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR SEAK_AI
+
+# Copy application files
+COPY . /SEAK_AI
+
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Expose the port used by Streamlit
+EXPOSE 8501
+
+# Run Streamlit application
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
