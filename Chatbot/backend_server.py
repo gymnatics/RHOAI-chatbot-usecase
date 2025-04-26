@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from backend_LLM_API import generate_llm_response_with_rag
+from Chatbot.backend_LLM_API import generate_llm_response_with_rag
 
 app = FastAPI()
 
