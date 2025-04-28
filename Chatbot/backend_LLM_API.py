@@ -7,10 +7,15 @@ from elasticsearch import Elasticsearch, helpers
 from tqdm import tqdm
 from elasticsearch.helpers import bulk
 
-es_user = os.environ.get("elastic_user")
-es_password = os.environ.get("elastic_password")
+
 
 def retrieve_most_relevant_embeddings(user_query, top_n=3):
+
+    es_user = os.environ.get("elastic_user")
+    es_password = os.environ.get("elastic_password")
+
+    print(es_user, es_password)
+    
     # elasticsearch client 
     es = Elasticsearch(
         hosts=["https://elasticsearch-sample-elasticsearch.apps.rosa-t59w8.oufo.p1.openshiftapps.com"], 
