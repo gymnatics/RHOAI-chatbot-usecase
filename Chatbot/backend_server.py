@@ -11,3 +11,7 @@ class QueryRequest(BaseModel):
 def generate_response(request: QueryRequest):
     response = generate_llm_response_with_rag(request.user_query)
     return {"response": response}
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
