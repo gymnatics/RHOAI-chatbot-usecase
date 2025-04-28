@@ -25,7 +25,7 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
     mapping = es.indices.get_mapping(index="helpdesk-embeddings")
     # print(mapping["helpdesk-embeddings"]["mappings"]["properties"].get("embedding", "Field not found"))
 
-    model = SentenceTransformer("./multi-qa-MiniLM-L6-cos-v1", device='cpu')
+    model = SentenceTransformer("./Chatbot/multi-qa-MiniLM-L6-cos-v1", device='cpu')
 
     query_embedding = model.encode(user_query).tolist()
 
