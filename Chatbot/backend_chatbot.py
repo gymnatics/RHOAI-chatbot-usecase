@@ -34,14 +34,13 @@ def reset_conversation():
                 "2. If clarification is still needed, follow up with 1 small question.\n"
                 "3. After 2 failed clarification attempts, suggest general causes based on past insights.\n\n"
                 "🔵 When responding:\n"
-                "    - If the user remains unclear after clarification, suggest **General Causes**.\n"
-                "    - If the user provides partial information, ask **1 short follow-up question**.\n"
-                "    - Otherwise, keep the response brief and professional.\n\n"
+                "- If unclear, suggest **General Causes**.\n"
+                "- If partial info, ask **only ONE short follow-up question**.\n"
+                "- Keep responses brief, polite, and friendly.\n\n"
                 "🔵 Additional Notes:\n"
-                "- Maintain a friendly, professional, and clear tone.\n"
-                "- Only ask 'Would you like me to continue?' if the response is longer than 300 words.\n"
-                "- Ensure all responses are helpful and directed towards resolving the issue without making unnecessary assumptions.\n\n"
-                "🔵 Be respectful and polite, even when suggesting possible general causes or follow-ups."
+                "- Only ask 'Would you like me to continue?' if the response exceeds 300 words.\n"
+                "- Never assume facts not provided by the user.\n"
+                "- Always be respectful."
             )
         }
     ]
@@ -146,11 +145,14 @@ def send_message(user_query):
         messages.append(context_message)
         context_injected = True
 
+    # Improved behavior detection
     user_text_lower = user_query.lower()
     response_behavior = "normal"
 
-    vague_keywords = ["problem", "idk", "not sure", "nothing working"]
-    if any(vague in user_text_lower for vague in vague_keywords):
+    vague_keywords = ["problem", "idk", "not sure", "nothing working", "uncertain", "don't know"]
+    short_response = len(user_query.split()) <= 4
+
+    if any(vague in user_text_lower for vague in vague_keywords) or short_response:
         if not guiding_questions_done:
             response_behavior = "guiding_questions"
             guiding_questions_done = True
@@ -161,6 +163,7 @@ def send_message(user_query):
             else:
                 response_behavior = "follow_up_question"
 
+    # Insert behavior-specific instruction
     if response_behavior == "guiding_questions":
         behavior_instruction = {
             "role": "system",
@@ -174,7 +177,11 @@ def send_message(user_query):
             "role": "system",
             "content": (
                 "🔵 Special Behavior Instruction:\n"
-                "The user provided partial information. Ask 1 short follow-up question to get more detail."
+                "The user provided partial information. You MUST only ask ONE (1) very short and specific follow-up question.\n\n"
+                "- Do NOT ask multiple questions.\n"
+                "- Do NOT list numbered or bullet-point questions.\n"
+                "- Phrase it naturally and politely encourage clarification.\n"
+                "- Keep it concise and friendly."
             )
         }
     elif response_behavior == "general_causes":
@@ -227,5 +234,5 @@ def send_message(user_query):
     else:
         return f"⚠️ Error {response.status_code}: {response.text}"
 
-# Initialize conversation at startup
+# Initialize conversation on startup
 reset_conversation()
