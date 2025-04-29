@@ -54,10 +54,11 @@ This project is an intelligent **conversational helpdesk chatbot** that summariz
 📂 scripts/                 # Data cleaning, processing, ETL
 requirements.txt            # All Python dependencies
 README.md                   # This file
-📚 Dataset Description: GitHub Issue Helpdesk Conversations
+```
+## 📚 Dataset Description: GitHub Issue Helpdesk Conversations
 This chatbot uses a real-world GitHub helpdesk dataset containing issue threads and solutions extracted from open-source repositories.
 
-🔑 Key Fields
+🔑 **Key Fields**
 issue_id: Unique ID for each GitHub thread.
 
 answer_body: Cleaned reply or discussion post.
@@ -81,6 +82,7 @@ Stripped noisy markdown while preserving logical formatting.
 ✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
 
 ⚙️ Setup Instructions
+```plaintext
 bash
 Copy
 Edit
@@ -100,9 +102,7 @@ export elastic_password="your-password"
 
 # Launch the Streamlit app
 streamlit run app/your_streamlit_app.py
-📄 License
-MIT License.
-
+```
 🤝 Contributing
 Pull requests are welcome!
 Feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX. If you spot bugs or want to add new features, please open an issue or submit a PR.
