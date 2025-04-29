@@ -59,13 +59,16 @@ README.md                   # This file
 This chatbot uses a real-world GitHub helpdesk dataset containing issue threads and solutions extracted from open-source repositories.
 
 ### 🔑 **Key Fields**
-issue_id: Unique ID for each GitHub thread.
+| Field Name       | Description                                                       |
+|------------------|---------------------------------------------------------------------|
+| `issue_id`       | Unique identifier for each GitHub issue thread.                    |
+| `answer_id`      | Sequential number representing the reply order within a thread.    |
+| `issue_body`     | Cleaned description of the original user-submitted problem.         |
+| `answer_body`    | Cleaned response/comment posted in reply to the issue.              |
+| `author`         | GitHub username of the person who posted the reply.                 |
+| `creation_time`  | Timestamp when the reply or comment was created.                    |
 
-answer_body: Cleaned reply or discussion post.
-
-author: Username of the person replying.
-
-creation_time: When the reply was posted.
+---
 
 🧼 Cleaning Includes
 Replaced URLs with <link>.
