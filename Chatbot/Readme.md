@@ -74,7 +74,7 @@ Removed mentions like @user and issue links #123.
 
 Stripped noisy markdown while preserving logical formatting.
 
-➡️ Original Dataset: Kaggle Link
+➡️ Original Dataset: https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets
 
 🧪 Example Usage
 🗨️ "I'm facing a Serial Monitor freezing issue with my Arduino IDE. What could be the problem?"
