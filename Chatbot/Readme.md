@@ -70,12 +70,11 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 
 ---
 
-### 🧼 Cleaning
-Replaced URLs with "<link>".
+### 🧼 Cleaning Highlights
 
-Removed mentions like @user and issue links #123.
-
-Stripped noisy markdown while preserving logical formatting.
+- Replaced raw URLs with a simple `<link>` tag.
+- Removed GitHub user mentions (e.g., `@user`) and internal issue references (e.g., `#123`).
+- Cleaned unnecessary whitespace and formatting inconsistencies while preserving important structure (code blocks, bullet points, etc.).
 
 ➡️ Original Dataset: https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets
 
