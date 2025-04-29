@@ -1,123 +1,92 @@
 import streamlit as st
-import random
+import requests
 import time
 
-st.title("Helpdesk Chatbot")
+# --- Hide Streamlit default elements
+hide_streamlit_style = """
+    <style>
 
-# Initialize chat history
+    .stDeployButton {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
+# --- Page Title
+st.markdown(
+    """
+    <h1 style="text-align: center;">
+        Helpdesk Chatbot
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
+
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
+    ]
 
-# Display chat messages from history on app rerun
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# --- Avatar URLs
+USER_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+ASSISTANT_AVATAR = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
 
-# Accept user input
-if prompt := st.chat_input("What is up?"):
-    # Display user message in chat message container
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    # Add user message to chat history
+# --- Initialize message history
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
+    ]
+
+# --- Display message history
+chat_container = st.container()
+with chat_container:
+    for message in st.session_state.messages:
+        avatar = USER_AVATAR if message["role"] == "user" else ASSISTANT_AVATAR
+        with st.chat_message(message["role"], avatar=avatar):
+            st.markdown(message["content"])
+
+# --- Input field
+prompt = st.chat_input("Type your question here...")
+
+# --- If user submits a question
+if prompt:
+    # Show user's message
+    with chat_container:
+        with st.chat_message("user", avatar=USER_AVATAR):
+            st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-# Get Reponse
-def get_response(user_query):
-    infer_endpoint = "http://model-predictor.minio.svc.cluster.local:8080" #Change infer endpoint here
-    infer_url = f"{infer_endpoint}/v1/completions"
-    
-    # Test for hyperparameter tuning 
-    payload = {
-        "model": "model",
-        "prompt": user_query,
-        "max_tokens": 1024,
-        "temperature": 0.3, # Controls randomness, lower temp for factuality 
-        "top_p": 1,
-        "n": 1, # Number of completions to generate
-        "repetition_penalty": 1.1, # Penalize repeated tokens (1 = no penalty)
-        "presence_penalty": 0.2, # Discourage mentioning same concepts again
-        "frequency_penalty": 0.2, # Discourage repeating the *same words* too frequently
-        "stream": False # If True, stream tokens back (like a live typewriter)
-    }
-    
-    response = requests.post(infer_url, json=payload)
-    
-    # prints the whole response json
-    # print(response.json())
-    
-    output_body = response.json()
-    generated_response = output_body['choices'][0]['text']
-    return generated_response.strip()
+    # --- Simulate backend call
+    def get_response(user_query):
+        infer_endpoint = "http://backend-api-service-backend-api.apps.rosa-t59w8.oufo.p1.openshiftapps.com"
+        infer_url = f"{infer_endpoint}/generate-response/"
+        payload = {"user_query": user_query}
+        headers = {"Content-Type": "application/json"}
 
+        response = requests.post(infer_url, json=payload, headers=headers)
+        response.raise_for_status()
+        result = response.json()["response"]
 
-# Display assistant response in chat message container
-with st.chat_message("assistant"):
-    response = st.write_stream(get_response(user_query))
-# Add assistant response to chat history
-st.session_state.messages.append({"role": "assistant", "content": response})
+        # If response is a list (e.g., [text, score]), extract first item
+        if isinstance(result, list):
+            return str(result[0])
+        return str(result)
 
+    # --- Assistant reply with typing effect
+    with chat_container:
+        with st.chat_message("assistant", avatar=ASSISTANT_AVATAR):
+            try:
+                raw_response = get_response(prompt)
+                placeholder = st.empty()
+                typed_text = ""
 
+                for char in raw_response:
+                    typed_text += char
+                    placeholder.markdown(typed_text + "▍")
+                    time.sleep(0.015)
 
-# import streamlit as st
-# import requests
+                placeholder.markdown(typed_text)
+                st.session_state.messages.append({"role": "assistant", "content": typed_text})
 
-# st.title("🧠 Helpdesk Chatbot Test")
-
-# if "messages" not in st.session_state:
-#     st.session_state.messages = []
-
-# # Show past messages
-# for message in st.session_state.messages:
-#     with st.chat_message(message["role"]):
-#         st.markdown(message["content"])
-
-# # Get user input
-# if prompt := st.chat_input("Ask me something!"):
-#     with st.chat_message("user"):
-#         st.markdown(prompt)
-#     st.session_state.messages.append({"role": "user", "content": prompt})
-
-#     # Wrap prompt with clear instruction
-#     full_prompt = f"""You are a helpful assistant. Please answer the following question clearly:
-
-# {prompt}
-
-# Answer:"""
-
-#     # Debug print
-#     print("Prompt being sent to LLM:")
-#     print(full_prompt)
-
-#     # === LLM call ===
-#     def get_response(user_query):
-#         infer_endpoint = "http://model-predictor.minio.svc.cluster.local:8080"
-#         infer_url = f"{infer_endpoint}/v1/completions"
-#         payload = {
-#             "model": "model",
-#             "prompt": user_query,
-#             "max_tokens": 1024,
-#             "temperature": 0.3,
-#             "top_p": 1,
-#             "n": 1,
-#             "repetition_penalty": 1.1,
-#             "presence_penalty": 0.2,
-#             "frequency_penalty": 0.2,
-#             "stream": False
-#         }
-#         response = requests.post(infer_url, json=payload)
-#         return response.json()['choices'][0]['text'].strip()
-
-#     with st.chat_message("assistant"):
-#         try:
-#             response = get_response(full_prompt)
-#             st.markdown(response)
-#             st.session_state.messages.append({"role": "assistant", "content": response})
-#         except Exception as e:
-#             st.error(f"Error calling LLM: {e}")
-
-
-
-
-
-
-
+            except Exception as e:
+                st.error(f"Error calling backend: {e}")
