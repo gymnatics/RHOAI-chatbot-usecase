@@ -1,34 +1,94 @@
-# streamlit_app.py
-
 import streamlit as st
-from backend_chatbot import send_message, reset_conversation
+import requests
+import time
 
-st.title("Helpdesk Chatbot")
+# --- Hide Streamlit default elements
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stDeployButton {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Initialize chat history
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-    reset_conversation()
 
-# Display past chat messages
-for message in st.session_state.chat_history:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# --- Page Title
+st.markdown(
+    """
+    <h1 style="text-align: center;">
+        Helpdesk Chatbot
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
-# Input box for user
-if prompt := st.chat_input("What is up?"):
-    # Display user message
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    
-    # Save user message
-    st.session_state.chat_history.append({"role": "user", "content": prompt})
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
+    ]
 
-    # Get assistant reply from your backend
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            response = send_message(prompt)
-            st.markdown(response)
+# --- Avatar URLs
+USER_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+ASSISTANT_AVATAR = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
 
-    # Save assistant message
-    st.session_state.chat_history.append({"role": "assistant", "content": response})
+# --- Initialize message history
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
+    ]
+
+# --- Display message history
+chat_container = st.container()
+with chat_container:
+    for message in st.session_state.messages:
+        avatar = USER_AVATAR if message["role"] == "user" else ASSISTANT_AVATAR
+        with st.chat_message(message["role"], avatar=avatar):
+            st.markdown(message["content"])
+
+# --- Input field
+prompt = st.chat_input("Type your question here...")
+
+# --- If user submits a question
+if prompt:
+    # Show user's message
+    with chat_container:
+        with st.chat_message("user", avatar=USER_AVATAR):
+            st.markdown(prompt)
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # --- Simulate backend call
+    def get_response(user_query):
+        infer_endpoint = "http://backend-api-service-backend-api.apps.rosa-t59w8.oufo.p1.openshiftapps.com"
+        infer_url = f"{infer_endpoint}/generate-response/"
+        payload = {"user_query": user_query}
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.post(infer_url, json=payload, headers=headers)
+        response.raise_for_status()
+        result = response.json()["response"]
+
+        # If response is a list (e.g., [text, score]), extract first item
+        if isinstance(result, list):
+            return str(result[0])
+        return str(result)
+
+    # --- Assistant reply with typing effect
+    with chat_container:
+        with st.chat_message("assistant", avatar=ASSISTANT_AVATAR):
+            try:
+                raw_response = get_response(prompt)
+                placeholder = st.empty()
+                typed_text = ""
+
+                for char in raw_response:
+                    typed_text += char
+                    placeholder.markdown(typed_text + "▍")
+                    time.sleep(0.015)
+
+                placeholder.markdown(typed_text)
+                st.session_state.messages.append({"role": "assistant", "content": typed_text})
+
+            except Exception as e:
+                st.error(f"Error calling backend: {e}")

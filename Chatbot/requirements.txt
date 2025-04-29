@@ -1,12 +1,38 @@
-pandas
-numpy
-seaborn
-matplotlib
-missingno
-scipy
-statsmodels
-scikit-learn
-nltk
-sentence-transformers
-transformers
-accelerate
+# Data handling
+pandas==2.2.2         # Dataframes and CSV/Excel manipulation
+numpy==1.26.4         # Array and numerical computation
+
+# Visualization
+seaborn==0.13.2       # Statistical visualizations
+matplotlib==3.8.4     # Plotting library
+missingno==0.5.2      # Missing data visualization
+
+# Statistical analysis
+scipy==1.13.0         # Scientific computing (linear algebra, stats)
+statsmodels==0.14.2   # Advanced statistical models (regression etc.)
+
+# Machine Learning
+scikit-learn==1.4.2   # Classical machine learning models
+
+# Natural Language Processing (NLP)
+nltk==3.8.1           # Natural language processing toolkit
+sentence-transformers==2.2.2  # Sentence-level embeddings
+transformers==4.40.1           # Huggingface LLMs and tokenizers
+accelerate==0.30.1             # Optimized inference for Huggingface models
+
+# Streamlit App
+streamlit==1.32.2     # Interactive web app frontend
+
+# Elasticsearch for RAG search
+elasticsearch==8.10.0 # Elasticsearch client for Python (compatible with OpenShift Elasticsearch 8.x)
+
+# HTTP Requests
+requests==2.31.0      # Making HTTP API calls
+urllib3==2.2.1        # Secure HTTP library (dependency of requests)
+
+# Misc utilities
+tqdm==4.66.2          # Progress bars in loops (e.g., embedding indexing)
+
+# AWS SDK
+boto3==1.34.79        # Python SDK for AWS services (e.g., S3 upload, secret management)
+botocore==1.34.79     # Core dependency of boto3 for AWS API communication
