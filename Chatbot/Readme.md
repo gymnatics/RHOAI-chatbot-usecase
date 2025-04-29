@@ -58,7 +58,7 @@ README.md                   # This file
 ## 📚 Dataset Description: GitHub Issue Helpdesk Conversations
 This chatbot uses a real-world GitHub helpdesk dataset containing issue threads and solutions extracted from open-source repositories.
 
-🔑 **Key Fields**
+### 🔑 **Key Fields**
 issue_id: Unique ID for each GitHub thread.
 
 answer_body: Cleaned reply or discussion post.
@@ -76,12 +76,12 @@ Stripped noisy markdown while preserving logical formatting.
 
 ➡️ Original Dataset: https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets
 
-🧪 Example Usage
+### 🧪 Example Usage
 🗨️ "I'm facing a Serial Monitor freezing issue with my Arduino IDE. What could be the problem?"
 
 ✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
 
-⚙️ Setup Instructions
+### ⚙️ Setup Instructions
 ```plaintext
 bash
 Copy
@@ -103,6 +103,6 @@ export elastic_password="your-password"
 # Launch the Streamlit app
 streamlit run app/your_streamlit_app.py
 ```
-🤝 Contributing
+### 🤝 Contributing
 Pull requests are welcome!
 Feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX. If you spot bugs or want to add new features, please open an issue or submit a PR.
