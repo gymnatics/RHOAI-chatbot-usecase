@@ -1,101 +1,108 @@
-# 🧠 GitHub Helpdesk Summarizer Chatbot
+# 🧠 GitHub Helpdesk Chatbot (Streamlit + RAG + LLM)
 
-This project is an intelligent assistant that summarizes and answers user queries based on GitHub issues and discussion threads. It is designed to help users quickly understand the context of technical issues, possible solutions, and prior discussions — effectively acting as a conversational helpdesk assistant powered by AI.
+This project is an intelligent **conversational helpdesk chatbot** that summarizes, clarifies, and answers user queries based on real GitHub issues and solution threads. It acts like a **friendly technical support assistant** powered by modern AI retrieval and reasoning.
 
 ## 🚀 Features
 
-- 🔍 **Summarizes GitHub issues and answer threads**
-- 💬 **Provides contextual answers to new queries**
-- 🧹 **Cleans and preprocesses raw GitHub data for NLP**
-- 🧠 **Uses modern embeddings + retrieval for smart responses**
-- 📚 **Supports scalable document search via vector databases**
+- 🔍 **Retrieves real GitHub issue solutions** based on semantic similarity.
+- 💬 **Conversational and adaptive troubleshooting assistant** that guides users through clarifying their problems.
+- 🧠 **Retrieval-Augmented Generation (RAG)** to combine search + LLM generation.
+- 🛜 **Scalable Elasticsearch backend** for fast vector similarity search.
+- 📊 **Professional, friendly Streamlit-based user interface**.
+- 🛡️ **Dynamic behavior control** (guiding questions → follow-ups → general causes).
+- 🖥️ **Backend library separated cleanly for reuse or scaling**.
 
 ## 🧩 How It Works
 
-This project follows a **Retrieval-Augmented Generation (RAG)** pipeline:
+1. **Semantic Retrieval**
+   - User question is converted into an embedding vector.
+   - Search for the top matching GitHub answers stored in Elasticsearch.
 
-1. **Data Extraction**
-   - Collects GitHub issues and their associated answer/comment threads.
+2. **Context Injection**
+   - Retrieved past discussions are optionally injected into the conversation if they are truly relevant.
 
-2. **Data Transformation**
-   - Converts wide-format issue data into a long format (1 row per answer).
-   - Preserves thread structure for end-to-end summarization and reasoning.
+3. **Behavior-Aware Chat**
+   - If the user query is vague, the chatbot dynamically asks guiding questions.
+   - If clarification is still partial, the bot follows up intelligently.
+   - After multiple unclear rounds, it suggests general causes politely.
 
-3. **Data Cleaning**
-   - Removes code blocks, URLs, mentions, and noisy formatting.
-   - Consolidates answers into full threads grouped by `issue_id`.
+4. **LLM Reasoning**
+   - A lightweight LLM model hosted on OpenShift AI generates conversational responses.
 
-4. **Text Chunking**
-   - Long threads are split into overlapping chunks using LangChain’s `RecursiveCharacterTextSplitter` or similar methods.
-
-5. **Embedding**
-   - Cleaned chunks are converted to dense vector embeddings using a model such as:
-     - `text-embedding-ada-002` (OpenAI)
-     - Cohere embeddings
-     - Granite Embeddings on Red Hat OpenShift AI
-   - Embeddings are stored in FAISS or Chroma for semantic retrieval.
-
-6. **Question Answering / Summarization**
-   - On query, relevant chunks are retrieved and passed to an LLM to generate responses.
+5. **Frontend Experience**
+   - A clean Streamlit app shows user questions, assistant responses, and tracks the chat history interactively.
 
 ## 🛠️ Tech Stack
 
-| Component       | Technology Used                      |
-|----------------|---------------------------------------|
-| Data Source     | GitHub Issues API / JSON export      |
-| Preprocessing   | `pandas`, `re`, `langchain`          |
-| Embedding       | OpenAI / Cohere / Granite Embeddings |
-| Vector Store    | FAISS / Chroma                       |
-| LLM Backend     | OpenAI GPT / Mixtral / Granite 3.2   |
-| Interface       | CLI / Streamlit / Web Chat (optional)|
+| Component         | Technology Used                                  |
+|-------------------|--------------------------------------------------|
+| Embedding Model    | `sentence-transformers (multi-qa-MiniLM-L6-cos-v1)` |
+| Semantic Search    | `Elasticsearch 8.10.0` (vector KNN search)       |
+| LLM Inference      | Hosted model server (Mixtral / Granite / Huggingface model) |
+| Web App            | `Streamlit` (dynamic chat UI)                   |
+| RAG Orchestration  | Custom lightweight backend logic (Python)       |
+| Cloud Deployment   | OpenShift (for backend + frontend hosting)       |
 
 ## 📁 Folder Structure
 
-📂 data/ → Raw + cleaned GitHub data 📂 scripts/ → Data processing and cleaning scripts 📂 embeddings/ → Embedding and vector store setup 📂 models/ → LLM configuration and RAG pipeline 📂 app/ → Chatbot interface (if any) README.md → You're here!
+```plaintext
+📂 app/                    # Streamlit frontend (user chat interface)
+📂 backend_chatbot/         # Chatbot backend logic (send_message, RAG retrieval, reset_conversation)
+📂 data/                    # Raw + cleaned GitHub helpdesk data
+📂 embeddings/              # Scripts to create and upload embeddings to Elasticsearch
+📂 models/                  # (Optional) Model configs and deployment scripts
+📂 scripts/                 # Data cleaning, processing, ETL
+requirements.txt            # All Python dependencies
+README.md                   # This file
+📚 Dataset Description: GitHub Issue Helpdesk Conversations
+This chatbot uses a real-world GitHub helpdesk dataset containing issue threads and solutions extracted from open-source repositories.
 
-yaml
+🔑 Key Fields
+issue_id: Unique ID for each GitHub thread.
+
+answer_body: Cleaned reply or discussion post.
+
+author: Username of the person replying.
+
+creation_time: When the reply was posted.
+
+🧼 Cleaning Includes
+Replaced URLs with <link>.
+
+Removed mentions like @user and issue links #123.
+
+Stripped noisy markdown while preserving logical formatting.
+
+➡️ Original Dataset: Kaggle Link
+
+🧪 Example Usage
+🗨️ "I'm facing a Serial Monitor freezing issue with my Arduino IDE. What could be the problem?"
+
+✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
+
+⚙️ Setup Instructions
+bash
 Copy
 Edit
+# Clone the project
+git clone <repo-url>
 
-### 📚 Dataset Description: GitHub Issue Helpdesk Conversations
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
 
-This dataset contains extracted and cleaned conversations from GitHub issue threads, tailored for training and evaluating AI-driven helpdesk assistants. Each row represents an individual response within an issue thread, accompanied by metadata to preserve conversational context. The original data can be found on Kaggle through the following link: https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets 
+# Install dependencies
+pip install -r requirements.txt
 
-#### 🔑 Key Fields
-- **`issue_id`**: Unique identifier for each GitHub issue thread.
-- **`answer_id`**: Sequential index of a reply within its thread (e.g., 0 for first reply).
-- **`issue_body`**: The original problem description submitted by the user, cleaned of markdown, URLs, and user mentions.
-- **`answer_body`**: The corresponding reply or discussion entry, also cleaned for consistency.
-- **`author`**: GitHub username of the respondent.
-- **`creation_time`**: Timestamp of when the response was posted.
+# Set environment variables for Elasticsearch access
+export elastic_user="your-username"
+export elastic_password="your-password"
 
-#### 🧼 Cleaning Highlights
-- Replaced URLs with `<link>`.
-- Removed GitHub mentions (`@user`) and issue references (`#123`).
-- Collapsed unnecessary whitespace while preserving code snippets and markdown structure.
+# Launch the Streamlit app
+streamlit run app/your_streamlit_app.py
+📄 License
+MIT License.
 
-This format is ideal for building LLM-powered Retrieval-Augmented Generation (RAG) systems or training dialogue agents to assist with developer support and issue resolution.
-
-## 🧪 Example Use Case
-
-> 🗨️ *"What does this issue about Angular's Router error mean and how do I fix it?"*
-
-✅ The chatbot fetches the issue and all its answer threads, summarizes the problem, and suggests the accepted or most probable fix.
-
----
-
-## 🧠 Future Work
-
-- Add metadata-aware retrieval (e.g., by label or user type)
-- Fine-tune summarization prompts for clarity
-- Expand to other repositories or platforms (e.g., GitLab)
-
-## 📄 License
-
-MIT License
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! If you want to improve the model, UI, or add new features, feel free to open an issue or PR.
+🤝 Contributing
+Pull requests are welcome!
+Feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX. If you spot bugs or want to add new features, please open an issue or submit a PR.
