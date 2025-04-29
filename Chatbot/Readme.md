@@ -70,7 +70,7 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 
 ---
 
-🧼 Cleaning Includes
+### 🧼 Cleaning
 Replaced URLs with <link>.
 
 Removed mentions like @user and issue links #123.
