@@ -1,6 +1,6 @@
 import streamlit as st
-import requests
 import time
+from backend_chatbot import send_message, reset_conversation  # 🧠 your local backend functions
 
 # --- Hide Streamlit default elements
 hide_streamlit_style = """
@@ -13,82 +13,65 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# --- Avatar URLs
+USER_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+ASSISTANT_AVATAR = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
 
 # --- Page Title
 st.markdown(
     """
     <h1 style="text-align: center;">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="50" style="vertical-align: middle;">
         Helpdesk Chatbot
     </h1>
     """,
     unsafe_allow_html=True
 )
 
+# --- Initialize conversation
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
     ]
+    reset_conversation()  # 🔄 Clear any past context in the backend
 
-# --- Avatar URLs
-USER_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-ASSISTANT_AVATAR = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-
-# --- Initialize message history
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
-    ]
-
-# --- Display message history
+# --- Display chat history
 chat_container = st.container()
 with chat_container:
-    for message in st.session_state.messages:
-        avatar = USER_AVATAR if message["role"] == "user" else ASSISTANT_AVATAR
-        with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(message["content"])
+    for msg in st.session_state.messages:
+        avatar = USER_AVATAR if msg["role"] == "user" else ASSISTANT_AVATAR
+        with st.chat_message(msg["role"], avatar=avatar):
+            st.markdown(msg["content"])
 
 # --- Input field
 prompt = st.chat_input("Type your question here...")
 
-# --- If user submits a question
+# --- On user input
 if prompt:
-    # Show user's message
+    # Show user message
     with chat_container:
         with st.chat_message("user", avatar=USER_AVATAR):
             st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # --- Simulate backend call
-    def get_response(user_query):
-        infer_endpoint = "http://backend-api-service-backend-api.apps.rosa-t59w8.oufo.p1.openshiftapps.com"
-        infer_url = f"{infer_endpoint}/generate-response/"
-        payload = {"user_query": user_query}
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.post(infer_url, json=payload, headers=headers)
-        response.raise_for_status()
-        result = response.json()["response"]
-
-        # If response is a list (e.g., [text, score]), extract first item
-        if isinstance(result, list):
-            return str(result[0])
-        return str(result)
-
-    # --- Assistant reply with typing effect
+    # Call backend locally via function
     with chat_container:
         with st.chat_message("assistant", avatar=ASSISTANT_AVATAR):
-            try:
-                raw_response = get_response(prompt)
-                placeholder = st.empty()
-                typed_text = ""
+            with st.spinner("Thinking..."):
+                try:
+                    raw_response = send_message(prompt)
+                    response_text = str(raw_response)
 
-                for char in raw_response:
-                    typed_text += char
-                    placeholder.markdown(typed_text + "▍")
-                    time.sleep(0.015)
+                    # Typing effect
+                    placeholder = st.empty()
+                    typed_text = ""
+                    for char in response_text:
+                        typed_text += char
+                        placeholder.markdown(typed_text + "▍")
+                        time.sleep(0.015)
 
-                placeholder.markdown(typed_text)
-                st.session_state.messages.append({"role": "assistant", "content": typed_text})
+                    placeholder.markdown(typed_text)
+                    st.session_state.messages.append({"role": "assistant", "content": typed_text})
+                except Exception as e:
+                    st.error(f"Error calling backend: {e}")
 
-            except Exception as e:
-                st.error(f"Error calling backend: {e}")
