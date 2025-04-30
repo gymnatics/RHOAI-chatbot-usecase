@@ -21,7 +21,6 @@ ASSISTANT_AVATAR = "https://github.githubassets.com/images/modules/logos_page/Gi
 st.markdown(
     """
     <h1 style="text-align: center;">
-        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="50" style="vertical-align: middle;">
         Helpdesk Chatbot
     </h1>
     """,
