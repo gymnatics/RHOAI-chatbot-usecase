@@ -172,7 +172,7 @@ def send_message(user_query):
     messages.append({"role": "user", "content": user_query})
 
     # === Summarize old messages if tokens exceed limit ===
-    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 6:
+    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 2:
         old_messages = messages[1:-5]  # exclude system + last 5
         chunks = []
         temp = []
