@@ -4,62 +4,62 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 from elasticsearch import Elasticsearch
-import tiktoken  # 🔐 NEW: for token counting
+from transformers import AutoTokenizer  # ✅ NEW: local tokenizer loading
 
-# Initialize model for embeddings
+# === Model Setup ===
 model = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1", device='cpu')
 
-# Global state
+# ✅ Load tokenizer from local folder (you must COPY tokenizer/ into /app in Containerfile)
+tokenizer = AutoTokenizer.from_pretrained("/app/tokenizer")
+
+# === Global State ===
 messages = []
 initial_topic_embedding = None
 context_injected = False
 guiding_questions_done = False
 clarification_rounds = 0
-max_token_limit = 4096  # LLM context limit
+max_token_limit = 4096
 
-# Token counter for message history
-def num_tokens_from_messages(messages, model_name="gpt-3.5-turbo"):
-    encoding = tiktoken.encoding_for_model(model_name)
+# === Token Counting ===
+def num_tokens_from_messages(messages):
     num_tokens = 0
     for m in messages:
-        num_tokens += 4  # per-message overhead
-        num_tokens += len(encoding.encode(m["content"]))
+        num_tokens += 4  # per message overhead (based on OpenAI's gpt spec)
+        num_tokens += len(tokenizer.encode(m["content"], add_special_tokens=False))
     num_tokens += 2  # priming
     return num_tokens
 
-# Reset conversation
+# === Reset Conversation ===
 def reset_conversation():
     global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are a highly capable GitHub Helpdesk Support Assistant designed to assist users based on real GitHub issue threads.\n\n"
-                "Always maintain a professional and helpful tone.\n\n"
-                "Carefully read the user's question and the context provided.\n\n"
-                "Use context if available. Only refer to it when relevant, and never make assumptions about the user's problem.\n\n"
-                "You will guide the user through the troubleshooting process in a helpful, friendly manner.\n\n"
-                "🔵 Special Instructions:\n\n"
-                "1. If the user provides vague input, ask guiding questions (max 5 questions).\n"
-                "2. If clarification is still needed, follow up with 1 small question.\n"
-                "3. After 2 failed clarification attempts, suggest general causes based on past insights.\n\n"
-                "🔵 When responding:\n"
-                "- If unclear, suggest **General Causes**.\n"
-                "- If partial info, ask **only ONE short follow-up question**.\n"
-                "- Keep responses brief, polite, and friendly.\n\n"
-                "🔵 Additional Notes:\n"
-                "- Only ask 'Would you like me to continue?' if the response exceeds 300 words.\n"
-                "- Never assume facts not provided by the user.\n"
-                "- Always be respectful."
-            )
-        }
-    ]
+    messages = [{
+        "role": "system",
+        "content": (
+            "You are a highly capable GitHub Helpdesk Support Assistant designed to assist users based on real GitHub issue threads.\n\n"
+            "Always maintain a professional and helpful tone.\n\n"
+            "Carefully read the user's question and the context provided.\n\n"
+            "Use context if available. Only refer to it when relevant, and never make assumptions about the user's problem.\n\n"
+            "You will guide the user through the troubleshooting process in a helpful, friendly manner.\n\n"
+            "🔵 Special Instructions:\n\n"
+            "1. If the user provides vague input, ask guiding questions (max 5 questions).\n"
+            "2. If clarification is still needed, follow up with 1 small question.\n"
+            "3. After 2 failed clarification attempts, suggest general causes based on past insights.\n\n"
+            "🔵 When responding:\n"
+            "- If unclear, suggest **General Causes**.\n"
+            "- If partial info, ask **only ONE short follow-up question**.\n"
+            "- Keep responses brief, polite, and friendly.\n\n"
+            "🔵 Additional Notes:\n"
+            "- Only ask 'Would you like me to continue?' if the response exceeds 300 words.\n"
+            "- Never assume facts not provided by the user.\n"
+            "- Always be respectful."
+        )
+    }]
     initial_topic_embedding = None
     context_injected = False
     guiding_questions_done = False
     clarification_rounds = 0
 
-# Helper functions
+# === Helper Functions ===
 def build_context(top_matches):
     return "\n\n---\n\n".join(match['answer_body'] for match in top_matches)
 
@@ -102,7 +102,7 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
         for hit in response["hits"]["hits"]
     ]
 
-# Main logic
+# === Main Handler ===
 def send_message(user_query):
     global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds
 
@@ -154,9 +154,9 @@ def send_message(user_query):
 
     messages.append({"role": "user", "content": user_query})
 
-    # ✅ NEW: Trim old messages to fit token limit
+    # ✅ Trim if message history exceeds model context
     while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 1:
-        del messages[1]  # always preserve the system prompt at index 0
+        del messages[1]  # Always keep the first system prompt
 
     payload = {
         "model": "model",
@@ -183,5 +183,5 @@ def send_message(user_query):
     else:
         return f"⚠️ Error {response.status_code}: {response.text}"
 
-# Startup reset
+# === On Startup ===
 reset_conversation()

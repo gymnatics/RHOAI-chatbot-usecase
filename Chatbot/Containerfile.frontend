@@ -4,7 +4,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copy only the Chatbot folder content into /app
-COPY Chatbot/ /app
+COPY Chatbot /app
 
 # Install Python dependencies
 RUN pip install --upgrade pip
