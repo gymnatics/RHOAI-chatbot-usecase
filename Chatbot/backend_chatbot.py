@@ -16,7 +16,7 @@ initial_topic_embedding = None
 context_injected = False
 guiding_questions_done = False
 clarification_rounds = 0
-max_token_limit = 4096
+max_token_limit = 131072
 
 # === Token Counting ===
 def num_tokens_from_messages(messages):
