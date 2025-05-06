@@ -16,6 +16,8 @@ initial_topic_embedding = None
 context_injected = False
 guiding_questions_done = False
 clarification_rounds = 0
+exchange_counter = 0
+SUMMARY_INTERVAL = 5
 max_token_limit = 4096
 
 # === Token Counting ===
@@ -49,7 +51,7 @@ def summarize_chunks(chunks):
 
 # === Reset Conversation ===
 def reset_conversation():
-    global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds
+    global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds, exchange_counter
     messages = [{
         "role": "system",
         "content": (
@@ -76,6 +78,7 @@ def reset_conversation():
     context_injected = False
     guiding_questions_done = False
     clarification_rounds = 0
+    exchange_counter = 0
 
 # === Helper Functions ===
 def build_context(top_matches):
@@ -122,7 +125,7 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
 
 # === Main Handler ===
 def send_message(user_query):
-    global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds
+    global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds, exchange_counter
 
     user_embedding = get_embedding(user_query)
     if initial_topic_embedding is None:
@@ -170,23 +173,24 @@ def send_message(user_query):
         messages.append({"role": "system", "content": "🔵 Special Behavior Instruction:\nThe user remains unclear. Suggest general causes based on past experience."})
 
     messages.append({"role": "user", "content": user_query})
+    exchange_counter += 1
 
-    # === Summarize old messages if tokens exceed limit ===
-    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 2:
-        old_messages = messages[1:-5]  # exclude system + last 5
-        chunks = []
-        temp = []
-        for msg in old_messages:
-            temp.append(msg["content"])
-            if len(" ".join(temp).split()) > 200:
+    # === Summarize proactively if needed ===
+    if exchange_counter >= SUMMARY_INTERVAL or num_tokens_from_messages(messages) > max_token_limit:
+        if len(messages) > 6:
+            old_messages = messages[1:-5]
+            chunks = []
+            temp = []
+            for msg in old_messages:
+                temp.append(msg["content"])
+                if len(" ".join(temp).split()) > 200:
+                    chunks.append("\n".join(temp))
+                    temp = []
+            if temp:
                 chunks.append("\n".join(temp))
-                temp = []
-        if temp:
-            chunks.append("\n".join(temp))
-
-        summary_text = "\n\n".join(summarize_chunks(chunks))
-        messages = [messages[0]] + [{"role": "system", "content": f"🟡 Summary of previous conversation:\n{summary_text}"}] + messages[-5:]
-        break
+            summary_text = "\n\n".join(summarize_chunks(chunks))
+            messages = [messages[0]] + [{"role": "system", "content": f"🟡 Summary of previous conversation:\n{summary_text}"}] + messages[-5:]
+            exchange_counter = 0
 
     payload = {
         "model": "model",
