@@ -1,21 +1,31 @@
-# backend_chatbot.py
-
 import os
 import requests
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 from elasticsearch import Elasticsearch
+import tiktoken  # 🔐 NEW: for token counting
 
 # Initialize model for embeddings
 model = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1", device='cpu')
 
-# Initialize global state
+# Global state
 messages = []
 initial_topic_embedding = None
 context_injected = False
 guiding_questions_done = False
 clarification_rounds = 0
+max_token_limit = 4096  # LLM context limit
+
+# Token counter for message history
+def num_tokens_from_messages(messages, model_name="gpt-3.5-turbo"):
+    encoding = tiktoken.encoding_for_model(model_name)
+    num_tokens = 0
+    for m in messages:
+        num_tokens += 4  # per-message overhead
+        num_tokens += len(encoding.encode(m["content"]))
+    num_tokens += 2  # priming
+    return num_tokens
 
 # Reset conversation
 def reset_conversation():
@@ -57,22 +67,18 @@ def get_embedding(text):
     return model.encode(text)
 
 def calculate_similarity(embedding1, embedding2):
-    embedding1 = np.array(embedding1).reshape(1, -1)
-    embedding2 = np.array(embedding2).reshape(1, -1)
-    return cosine_similarity(embedding1, embedding2)[0][0]
+    return cosine_similarity(
+        np.array(embedding1).reshape(1, -1),
+        np.array(embedding2).reshape(1, -1)
+    )[0][0]
 
 def retrieve_most_relevant_embeddings(user_query, top_n=3):
-    es_user = os.environ.get("elastic_user")
-    es_password = os.environ.get("elastic_password")
-
     es = Elasticsearch(
         hosts=["https://elasticsearch-sample-elasticsearch.apps.rosa-t59w8.oufo.p1.openshiftapps.com"],
-        basic_auth=(es_user, es_password),
+        basic_auth=(os.environ.get("elastic_user"), os.environ.get("elastic_password")),
         verify_certs=False
     )
-
     query_embedding = get_embedding(user_query).tolist()
-
     response = es.search(
         index="helpdesk-embeddings",
         body={
@@ -87,31 +93,25 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
             }
         }
     )
-
-    hits = response["hits"]["hits"]
-    relevant_answers = [
+    return [
         {
             "issue_id": hit["_source"]["issue_id"],
             "answer_body": hit["_source"]["answer_body"],
             "score": hit["_score"]
         }
-        for hit in hits
+        for hit in response["hits"]["hits"]
     ]
 
-    return relevant_answers
-
-# Main function to handle user message
+# Main logic
 def send_message(user_query):
     global messages, initial_topic_embedding, context_injected, guiding_questions_done, clarification_rounds
 
     user_embedding = get_embedding(user_query)
-
     if initial_topic_embedding is None:
         initial_topic_embedding = user_embedding
     elif len(user_query.split()) > 5:
-        similarity = calculate_similarity(initial_topic_embedding, user_embedding)
-        if similarity < 0.5:
-            print(f"🔄 Major topic change detected (similarity {similarity:.2f}). Resetting context.")
+        if calculate_similarity(initial_topic_embedding, user_embedding) < 0.5:
+            print("🔄 Major topic change detected. Resetting context.")
             context_injected = False
             initial_topic_embedding = user_embedding
             guiding_questions_done = False
@@ -119,86 +119,44 @@ def send_message(user_query):
 
     if not context_injected:
         top_matches = retrieve_most_relevant_embeddings(user_query)
-        min_score_threshold = 0.4
-
-        if not top_matches or top_matches[0]['score'] < min_score_threshold:
-            context_message = {
+        if not top_matches or top_matches[0]['score'] < 0.4:
+            messages.append({
                 "role": "system",
-                "content": (
-                    "🔵 Context Update:\n\n"
-                    "No strong matching past issues found.\n\n"
-                    "(Answer politely based on general knowledge.)"
-                )
-            }
+                "content": "🔵 Context Update:\n\nNo strong matching past issues found.\n\n(Answer politely based on general knowledge.)"
+            })
         else:
-            context = build_context(top_matches)
-            quoted_context = context.replace('\n', '\n> ')
-            context_message = {
+            quoted = build_context(top_matches).replace('\n', '\n> ')
+            messages.append({
                 "role": "system",
-                "content": (
-                    "🔵 Context Update:\n\n"
-                    "Summaries of past similar issues (use carefully):\n\n"
-                    f"> {quoted_context}\n\n"
-                    "(Only use if truly matching.)"
-                )
-            }
-        messages.append(context_message)
+                "content": f"🔵 Context Update:\n\nSummaries of past similar issues (use carefully):\n\n> {quoted}\n\n(Only use if truly matching.)"
+            })
         context_injected = True
 
-    # Improved behavior detection
     user_text_lower = user_query.lower()
-    response_behavior = "normal"
-
+    short = len(user_query.split()) <= 4
     vague_keywords = ["problem", "idk", "not sure", "nothing working", "uncertain", "don't know"]
-    short_response = len(user_query.split()) <= 4
+    behavior = "normal"
 
-    if any(vague in user_text_lower for vague in vague_keywords) or short_response:
+    if any(v in user_text_lower for v in vague_keywords) or short:
         if not guiding_questions_done:
-            response_behavior = "guiding_questions"
+            behavior = "guiding_questions"
             guiding_questions_done = True
         else:
             clarification_rounds += 1
-            if clarification_rounds >= 2:
-                response_behavior = "general_causes"
-            else:
-                response_behavior = "follow_up_question"
+            behavior = "general_causes" if clarification_rounds >= 2 else "follow_up_question"
 
-    # Insert behavior-specific instruction
-    if response_behavior == "guiding_questions":
-        behavior_instruction = {
-            "role": "system",
-            "content": (
-                "🔵 Special Behavior Instruction:\n"
-                "The user seems unsure. Kindly ask around 5 short guiding questions to clarify their issue."
-            )
-        }
-    elif response_behavior == "follow_up_question":
-        behavior_instruction = {
-            "role": "system",
-            "content": (
-                "🔵 Special Behavior Instruction:\n"
-                "The user provided partial information. You MUST only ask ONE (1) very short and specific follow-up question.\n\n"
-                "- Do NOT ask multiple questions.\n"
-                "- Do NOT list numbered or bullet-point questions.\n"
-                "- Phrase it naturally and politely encourage clarification.\n"
-                "- Keep it concise and friendly."
-            )
-        }
-    elif response_behavior == "general_causes":
-        behavior_instruction = {
-            "role": "system",
-            "content": (
-                "🔵 Special Behavior Instruction:\n"
-                "The user remains unclear after multiple tries. Politely suggest some general possible causes based on common troubleshooting experience."
-            )
-        }
-    else:
-        behavior_instruction = None
-
-    if behavior_instruction:
-        messages.append(behavior_instruction)
+    if behavior == "guiding_questions":
+        messages.append({"role": "system", "content": "🔵 Special Behavior Instruction:\nThe user seems unsure. Kindly ask around 5 short guiding questions to clarify their issue."})
+    elif behavior == "follow_up_question":
+        messages.append({"role": "system", "content": "🔵 Special Behavior Instruction:\nThe user provided partial information. You MUST only ask ONE short follow-up question."})
+    elif behavior == "general_causes":
+        messages.append({"role": "system", "content": "🔵 Special Behavior Instruction:\nThe user remains unclear. Suggest general causes based on past experience."})
 
     messages.append({"role": "user", "content": user_query})
+
+    # ✅ NEW: Trim old messages to fit token limit
+    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 1:
+        del messages[1]  # always preserve the system prompt at index 0
 
     payload = {
         "model": "model",
@@ -213,26 +171,17 @@ def send_message(user_query):
         "stream": False
     }
 
-    infer_endpoint = "http://model-predictor.minio.svc.cluster.local:8080"
-    infer_url = f"{infer_endpoint}/v1/chat/completions"
-
+    infer_url = "http://model-predictor.minio.svc.cluster.local:8080/v1/chat/completions"
     response = requests.post(infer_url, json=payload)
 
     if response.status_code == 200:
-        output_body = response.json()
-        generated_response = output_body['choices'][0]['message']['content']
-
-        if len(generated_response.split()) > 300:
-            generated_response += "\n\nWould you like me to continue?"
-
-        messages.append({"role": "assistant", "content": generated_response.strip()})
-
-        if len(messages) > 30:
-            messages = messages[-20:]  # Keep latest messages
-
-        return generated_response.strip()
+        content = response.json()['choices'][0]['message']['content']
+        if len(content.split()) > 300:
+            content += "\n\nWould you like me to continue?"
+        messages.append({"role": "assistant", "content": content.strip()})
+        return content.strip()
     else:
         return f"⚠️ Error {response.status_code}: {response.text}"
 
-# Initialize conversation on startup
+# Startup reset
 reset_conversation()
