@@ -4,12 +4,10 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 from elasticsearch import Elasticsearch
-from transformers import AutoTokenizer  # ✅ NEW: local tokenizer loading
+from transformers import AutoTokenizer
 
 # === Model Setup ===
 model = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1", device='cpu')
-
-# ✅ Load tokenizer from local folder (you must COPY tokenizer/ into /app in Containerfile)
 tokenizer = AutoTokenizer.from_pretrained("/app/tokenizer")
 
 # === Global State ===
@@ -24,10 +22,30 @@ max_token_limit = 4096
 def num_tokens_from_messages(messages):
     num_tokens = 0
     for m in messages:
-        num_tokens += 4  # per message overhead (based on OpenAI's gpt spec)
+        num_tokens += 4
         num_tokens += len(tokenizer.encode(m["content"], add_special_tokens=False))
-    num_tokens += 2  # priming
+    num_tokens += 2
     return num_tokens
+
+# === Summarization using the same model API ===
+def summarize_chunks(chunks):
+    summaries = []
+    infer_url = "http://model-predictor.minio.svc.cluster.local:8080/v1/chat/completions"
+    for chunk in chunks:
+        payload = {
+            "model": "model",
+            "messages": [
+                {"role": "system", "content": "Summarize the following chat history into a short paragraph that captures the essence of the conversation:"},
+                {"role": "user", "content": chunk}
+            ]
+        }
+        response = requests.post(infer_url, json=payload)
+        if response.status_code == 200:
+            summary = response.json()["choices"][0]["message"]["content"].strip()
+            summaries.append(summary)
+        else:
+            summaries.append(chunk)
+    return summaries
 
 # === Reset Conversation ===
 def reset_conversation():
@@ -111,7 +129,6 @@ def send_message(user_query):
         initial_topic_embedding = user_embedding
     elif len(user_query.split()) > 5:
         if calculate_similarity(initial_topic_embedding, user_embedding) < 0.5:
-            print("🔄 Major topic change detected. Resetting context.")
             context_injected = False
             initial_topic_embedding = user_embedding
             guiding_questions_done = False
@@ -154,9 +171,22 @@ def send_message(user_query):
 
     messages.append({"role": "user", "content": user_query})
 
-    # ✅ Trim if message history exceeds model context
-    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 1:
-        del messages[1]  # Always keep the first system prompt
+    # === Summarize old messages if tokens exceed limit ===
+    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 6:
+        old_messages = messages[1:-5]  # exclude system + last 5
+        chunks = []
+        temp = []
+        for msg in old_messages:
+            temp.append(msg["content"])
+            if len(" ".join(temp).split()) > 200:
+                chunks.append("\n".join(temp))
+                temp = []
+        if temp:
+            chunks.append("\n".join(temp))
+
+        summary_text = "\n\n".join(summarize_chunks(chunks))
+        messages = [messages[0]] + [{"role": "system", "content": f"🟡 Summary of previous conversation:\n{summary_text}"}] + messages[-5:]
+        break
 
     payload = {
         "model": "model",
