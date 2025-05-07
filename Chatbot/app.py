@@ -2,15 +2,16 @@ import streamlit as st
 import requests
 import time
 
-# --- Hide Streamlit default elements
-hide_streamlit_style = """
-    <style>
-
-    .stDeployButton {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
+# # --- Hide Streamlit default elements
+# hide_streamlit_style = """
+#     <style>
+#     #MainMenu {visibility: hidden;}
+#     footer {visibility: hidden;}
+#     header {visibility: hidden;}
+#     .stDeployButton {visibility: hidden;}
+#     </style>
+# """
+# st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # --- Page Title
 st.markdown(
@@ -82,10 +83,10 @@ if prompt:
 
                 for char in raw_response:
                     typed_text += char
-                    placeholder.markdown(typed_text + "▍")
+                    placeholder.code(typed_text + "▍")  # Use code block to show raw, unstyled text
                     time.sleep(0.015)
 
-                placeholder.markdown(typed_text)
+                placeholder.markdown(typed_text, unsafe_allow_html=False)
                 st.session_state.messages.append({"role": "assistant", "content": typed_text})
 
             except Exception as e:
