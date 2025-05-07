@@ -23,11 +23,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "👋 Hi there! How may I help you today?"}
-    ]
-
 # --- Avatar URLs
 USER_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png"
 ASSISTANT_AVATAR = "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
@@ -43,8 +38,8 @@ chat_container = st.container()
 with chat_container:
     for message in st.session_state.messages:
         avatar = USER_AVATAR if message["role"] == "user" else ASSISTANT_AVATAR
-        with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(message["content"])
+        with st.chat_message("user", avatar=USER_AVATAR):
+            st.write(prompt)  # or st.text() to escape everything
 
 # --- Input field
 prompt = st.chat_input("Type your question here...")
