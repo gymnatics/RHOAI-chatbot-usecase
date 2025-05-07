@@ -78,10 +78,10 @@ if prompt:
 
                 for char in raw_response:
                     typed_text += char
-                    placeholder.code(typed_text + "▍")  # Use code block to show raw, unstyled text
+                    placeholder.markdown(typed_text + "▍")
                     time.sleep(0.015)
 
-                placeholder.markdown(typed_text, unsafe_allow_html=False)
+                placeholder.markdown(typed_text)
                 st.session_state.messages.append({"role": "assistant", "content": typed_text})
 
             except Exception as e:
