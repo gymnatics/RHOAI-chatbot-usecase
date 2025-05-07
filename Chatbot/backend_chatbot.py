@@ -225,9 +225,9 @@ def send_message(user_query):
         messages.append({"role": "assistant", "content": generated_response.strip()})
 
         # ✅ Preserve first system prompt and trim rest if too long
-        if len(messages) > 30:
+        if len(messages) > 10:
             system_prompt = messages[0:1]
-            trimmed = messages[-29:]  # 1 system + 29 recent messages
+            trimmed = messages[-9:]  # 1 system + 29 recent messages
             messages = system_prompt + trimmed
 
         return generated_response.strip()
