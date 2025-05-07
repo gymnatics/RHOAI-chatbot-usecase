@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "grey"                  # or any muted color like grey/blue
+backgroundColor = "#0E1117"            # dark background
+secondaryBackgroundColor = "#262730"   # slightly lighter for containers
+textColor = "#FAFAFA"                  # soft white text
+font = "sans serif"
