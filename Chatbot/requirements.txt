@@ -19,7 +19,7 @@ nltk==3.8.1                         # Natural language processing toolkit
 sentence-transformers==2.2.2       # Sentence-level embeddings
 transformers==4.40.1               # Huggingface LLMs and tokenizers
 accelerate==0.30.1                 # Optimized inference for Huggingface models
-tiktoken==0.6.0                    # Token counting for OpenAI-compatible message windows
+huggingface_hub==0.14.1
 
 # Streamlit App
 streamlit==1.32.2       # Interactive web app frontend
