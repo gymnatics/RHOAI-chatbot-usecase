@@ -16,7 +16,7 @@ initial_topic_embedding = None
 context_injected = False
 guiding_questions_done = False
 clarification_rounds = 0
-max_token_limit = 131072
+max_token_limit = 4096
 
 # === Token Counting ===
 def num_tokens_from_messages(messages):
@@ -172,8 +172,8 @@ def send_message(user_query):
     messages.append({"role": "user", "content": user_query})
 
     # === Summarize old messages if tokens exceed limit ===
-    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 11:
-        old_messages = messages[1:-10]  # exclude system + last 10
+    while num_tokens_from_messages(messages) > max_token_limit and len(messages) > 2:
+        old_messages = messages[1:-5]  # exclude system + last 5
         chunks = []
         temp = []
         for msg in old_messages:
