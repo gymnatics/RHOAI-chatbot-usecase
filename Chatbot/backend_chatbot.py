@@ -27,15 +27,15 @@ def reset_conversation():
                 "Carefully read the user's question and the context provided.\n\n"
                 "Use context if available. Only refer to it when relevant, and never make assumptions about the user's problem.\n\n"
                 "You will guide the user through the troubleshooting process in a helpful, friendly manner.\n\n"
-                "🔵 Special Instructions:\n\n"
+                "\ud83d\udd35 Special Instructions:\n\n"
                 "1. If the user provides vague input, ask guiding questions (max 5 questions).\n"
                 "2. If clarification is still needed, follow up with 1 small question.\n"
                 "3. After 2 failed clarification attempts, suggest general causes based on past insights.\n\n"
-                "🔵 When responding:\n"
+                "\ud83d\udd35 When responding:\n"
                 "- If unclear, suggest **General Causes**.\n"
                 "- If partial info, ask **only ONE short follow-up question**.\n"
                 "- Keep responses brief, polite, and friendly.\n\n"
-                "🔵 Additional Notes:\n"
+                "\ud83d\udd35 Additional Notes:\n"
                 "- Only ask 'Would you like me to continue?' if the response exceeds 300 words.\n"
                 "- Never assume facts not provided by the user.\n"
                 "- Always be respectful."
@@ -87,16 +87,14 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
     )
 
     hits = response["hits"]["hits"]
-    relevant_answers = [
+    return [
         {
             "issue_id": hit["_source"]["issue_id"],
             "answer_body": hit["_source"]["answer_body"],
             "score": hit["_score"]
         }
-        for hit in hits if hit["_score"] >= 0.4  # ✅ Filter by score threshold
+        for hit in hits if hit["_score"] >= 0.4
     ]
-
-    return relevant_answers
 
 # Main function to handle user message
 def send_message(user_query):
@@ -109,20 +107,20 @@ def send_message(user_query):
     elif len(user_query.split()) > 5:
         similarity = calculate_similarity(initial_topic_embedding, user_embedding)
         if similarity < 0.5:
-            print(f"🔄 Major topic change detected (similarity {similarity:.2f}). Resetting context.")
-            context_injected = False
+            print(f"\U0001f501 Major topic change detected (similarity {similarity:.2f}). Resetting context.")
             initial_topic_embedding = user_embedding
             guiding_questions_done = False
             clarification_rounds = 0
+            context_injected = False  # Force new context injection
 
     if not context_injected:
         top_matches = retrieve_most_relevant_embeddings(user_query)
 
         if not top_matches:
             context_message = {
-                "role": "user",  # ✅ Changed to user
+                "role": "user",
                 "content": (
-                    "🔵 Context Update:\n\n"
+                    "\U0001f535 Context Update:\n\n"
                     "No strong matching past issues found.\n\n"
                     "(Answer politely based on general knowledge.)"
                 )
@@ -131,21 +129,21 @@ def send_message(user_query):
             context = build_context(top_matches)
             quoted_context = context.replace('\n', '\n> ')
             context_message = {
-                "role": "user",  # ✅ Changed to user
+                "role": "user",
                 "content": (
-                    "🔵 Context Update:\n\n"
+                    "\U0001f535 Context Update:\n\n"
                     "Summaries of past similar issues (use carefully):\n\n"
                     f"> {quoted_context}\n\n"
                     "(Only use if truly matching.)"
                 )
             }
+
         messages.append(context_message)
         context_injected = True
 
     # Behavior detection
     user_text_lower = user_query.lower()
     response_behavior = "normal"
-
     vague_keywords = ["problem", "idk", "not sure", "nothing working", "uncertain", "don't know"]
     short_response = len(user_query.split()) <= 4
 
@@ -162,38 +160,33 @@ def send_message(user_query):
 
     # Behavior instructions
     if response_behavior == "guiding_questions":
-        behavior_instruction = {
-            "role": "user",  # ✅ Changed to user
+        messages.append({
+            "role": "user",
             "content": (
-                "🔵 Special Behavior Instruction:\n"
+                "\U0001f535 Special Behavior Instruction:\n"
                 "The user seems unsure. Kindly ask around 5 short guiding questions to clarify their issue."
             )
-        }
+        })
     elif response_behavior == "follow_up_question":
-        behavior_instruction = {
-            "role": "user",  # ✅ Changed to user
+        messages.append({
+            "role": "user",
             "content": (
-                "🔵 Special Behavior Instruction:\n"
+                "\U0001f535 Special Behavior Instruction:\n"
                 "The user provided partial information. You MUST only ask ONE (1) very short and specific follow-up question.\n\n"
                 "- Do NOT ask multiple questions.\n"
                 "- Do NOT list numbered or bullet-point questions.\n"
                 "- Phrase it naturally and politely encourage clarification.\n"
                 "- Keep it concise and friendly."
             )
-        }
+        })
     elif response_behavior == "general_causes":
-        behavior_instruction = {
-            "role": "user",  # ✅ Changed to user
+        messages.append({
+            "role": "user",
             "content": (
-                "🔵 Special Behavior Instruction:\n"
+                "\U0001f535 Special Behavior Instruction:\n"
                 "The user remains unclear after multiple tries. Politely suggest some general possible causes based on common troubleshooting experience."
             )
-        }
-    else:
-        behavior_instruction = None
-
-    if behavior_instruction:
-        messages.append(behavior_instruction)
+        })
 
     messages.append({"role": "user", "content": user_query})
 
@@ -224,15 +217,12 @@ def send_message(user_query):
 
         messages.append({"role": "assistant", "content": generated_response.strip()})
 
-        # ✅ Preserve first system prompt and trim rest if too long
         if len(messages) > 10:
-            system_prompt = messages[0:1]
-            trimmed = messages[-9:]  # 1 system + 29 recent messages
-            messages = system_prompt + trimmed
+            messages = messages[:1] + messages[-9:]
 
         return generated_response.strip()
     else:
-        return f"⚠️ Error {response.status_code}: {response.text}"
+        return f"\u26a0\ufe0f Error {response.status_code}: {response.text}"
 
 # Initialize conversation on startup
 reset_conversation()
