@@ -84,9 +84,9 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 ✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
 
 ### Chatbot Architecture
-![image](SEAK_AI/images/connection_flow.png)
+![image](../images/connection_flow.png)
 
-![image](SEAK_AI/images/chatbot_flow.png)
+![image](../images/chatbot_flow.png)
 
 ### ⚙️ Setup Instructions
 <Work-in_progress>
