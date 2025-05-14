@@ -84,27 +84,7 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 ✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
 
 ### ⚙️ Setup Instructions
-```plaintext
-bash
-Copy
-Edit
-# Clone the project
-git clone <repo-url>
-
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set environment variables for Elasticsearch access
-export elastic_user="your-username"
-export elastic_password="your-password"
-
-# Launch the Streamlit app
-streamlit run app/your_streamlit_app.py
-```
+<Work-in_progress>
 ### 🤝 Contributing
 Pull requests are welcome!
 Feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX. If you spot bugs or want to add new features, please open an issue or submit a PR.
