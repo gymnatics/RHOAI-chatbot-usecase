@@ -12,6 +12,13 @@ This project is an intelligent **conversational helpdesk chatbot** that summariz
 - 🛡️ **Dynamic behavior control** (guiding questions → follow-ups → general causes).
 - 🖥️ **Backend library separated cleanly for reuse or scaling**.
 
+### ⚙️ Setup Instructions
+For this Chatbot PoC, the following resources are needed:
+1. Openshift Cluster (We used ROSA for this specific PoC)
+   a. 2 worker nodes - g4dn.12xlarge for GPU node, m6a.4xlarge for non-GPU node
+   b. 1 master node + 2 infra nodes (optional to have infra nodes)
+2. Working Openshift AI installation ([Installing and Deploying OpenShift AI](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.20/html/installing_and_uninstalling_openshift_ai_self-managed/installing-and-deploying-openshift-ai_install#installing-and-deploying-openshift-ai_install)
+
 ## 🧩 How It Works
 
 1. **Semantic Retrieval**
@@ -84,12 +91,16 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 ✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
 
 ### Chatbot Architecture
+The chatbot has 3 main workflow pipelines:
+1. Model serving pipeline
+2. RAG pipeline
+3. CI/CD Pipeline for Application Deployment
+
 ![image](../images/connection_flow.png)
 
+## Here is how the chatbot decides when to perform the RAG retrieval for context during a conversation with a user:
 ![image](../images/chatbot_flow.png)
 
-### ⚙️ Setup Instructions
-<Work-in_progress>
 ### 🤝 Contributing
 Pull requests are welcome!
 Feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX. If you spot bugs or want to add new features, please open an issue or submit a PR.
