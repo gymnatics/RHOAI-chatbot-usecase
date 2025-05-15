@@ -45,7 +45,7 @@ For this Chatbot PoC, the following resources are needed:
 |-------------------|--------------------------------------------------|
 | Embedding Model    | `sentence-transformers (multi-qa-MiniLM-L6-cos-v1)` |
 | Semantic Search    | `Elasticsearch 8.10.0` (vector KNN search)       |
-| LLM Inference      | Hosted model server (Mixtral / Granite / Huggingface model) |
+| LLM Inference      | Granite 3.2 8b Instruct on vLLM v0.7.3 |
 | Web App            | `Streamlit` (dynamic chat UI)                   |
 | RAG Orchestration  | Custom lightweight backend logic (Python)       |
 | Cloud Deployment   | OpenShift (for backend + frontend hosting)       |
