@@ -100,7 +100,7 @@ The chatbot has 3 main workflow pipelines:
 
 ![image](../images/connection_flow.png)
 
-## Here is how the chatbot decides when to perform the RAG retrieval for context during a conversation with a user:
+Here is how the chatbot decides when to perform the RAG retrieval for context during a conversation with a user:
 ![image](../images/chatbot_flow.png)
 
 ### 🤝 Contributing
