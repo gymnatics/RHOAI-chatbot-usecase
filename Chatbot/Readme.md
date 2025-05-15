@@ -14,9 +14,9 @@ This project is an intelligent **conversational helpdesk chatbot** that summariz
 
 ### ⚙️ Setup Instructions
 For this Chatbot PoC, the following resources are needed:
-1. Openshift Cluster (We used ROSA for this specific PoC)
-   a. 2 worker nodes - g4dn.12xlarge for GPU node, m6a.4xlarge for non-GPU node
-   b. 1 master node + 2 infra nodes (optional to have infra nodes)
+1. OpenShift Cluster (We used ROSA for this specific PoC)  
+   a. 2 worker nodes – `g4dn.12xlarge` for GPU node, `m6a.4xlarge` for non-GPU node  
+   b. 1 master node + 2 infra nodes (optional)
 2. Working Openshift AI installation ([Installing and Deploying OpenShift AI](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.20/html/installing_and_uninstalling_openshift_ai_self-managed/installing-and-deploying-openshift-ai_install#installing-and-deploying-openshift-ai_install)
 
 ## 🧩 How It Works
