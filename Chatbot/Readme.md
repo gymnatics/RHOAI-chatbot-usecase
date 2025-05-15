@@ -48,7 +48,7 @@ For this Chatbot PoC, the following resources are needed:
 | LLM Inference      | Granite 3.2 8b Instruct on vLLM v0.7.3 |
 | Web App            | `Streamlit` (dynamic chat UI)                   |
 | RAG Orchestration  | Custom lightweight backend logic (Python)       |
-| Cloud Deployment   | OpenShift (for backend + frontend hosting)       |
+| Cloud Deployment   | Red Hat Openshift Service on AWS (for backend + frontend hosting)       |
 
 ## 📁 Folder Structure
 
