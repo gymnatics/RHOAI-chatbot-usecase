@@ -83,7 +83,7 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 - Removed GitHub user mentions (e.g., `@user`) and internal issue references (e.g., `#123`).
 - Cleaned unnecessary whitespace and formatting inconsistencies while preserving important structure (code blocks, bullet points, etc.).
 
-➡️ Original Dataset: https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets
+➡️ Original Dataset: [Kaggle Github Helpdesk Tickets]https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets
 
 ### 🧪 Example Usage
 🗨️ "I'm facing a Serial Monitor freezing issue with my Arduino IDE. What could be the problem?"
