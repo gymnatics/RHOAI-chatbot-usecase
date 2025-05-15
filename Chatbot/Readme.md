@@ -104,5 +104,5 @@ Here is how the chatbot decides when to perform the RAG retrieval for context du
 ![image](../images/chatbot_flow.png)
 
 ### 🤝 Contributing
-Pull requests are welcome!
-Feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX. If you spot bugs or want to add new features, please open an issue or submit a PR.
+Pull requests are welcome! This is a PoC that is still a work in progress, so please feel free to suggest improvements to the retrieval system, LLM prompting, or frontend UX.<br> 
+If you spot bugs or want to add new features, please open an issue or submit a PR.
