@@ -91,6 +91,7 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 ✅ The chatbot will retrieve similar cases from the database, summarize relevant solutions, and politely guide the user through possible fixes step-by-step.
 
 ### Chatbot Architecture
+For our Chatbot, we made use of only RAG and Prompt Engineering due to limitations in GPU resources. Model fine tuning could also be used to improve the functionality, but at a higher resource cost.
 The chatbot has 3 main workflow pipelines:
 1. Model serving pipeline
 2. RAG pipeline
