@@ -98,7 +98,7 @@ The chatbot has 3 main workflow pipelines:
 2. RAG pipeline
 3. CI/CD Pipeline for Application Deployment
 
-![image](../images/connection_flow.png)
+![image](../images/Solution_Architecture.png)
 
 Here is how the chatbot decides when to perform the RAG retrieval for context during a conversation with a user:
 ![image](../images/chatbot_flow.png)
