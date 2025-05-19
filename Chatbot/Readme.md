@@ -31,6 +31,16 @@ To deploy this Chatbot Proof of Concept (PoC), ensure the following resources ar
 - **Control Plane:**
   - `1` master node
   - `2` infrastructure nodes *(optional)*
+- **Dataset Preparation:**
+  1. Download the dataset from Kaggle:  
+     🔗 [Kaggle Github Helpdesk Tickets](https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets)
+  2. Open the `EDA_Chatbot.ipynb` notebook provided in the repository.
+  3. Run through the notebook to:
+     - Perform data cleaning
+     - Conduct exploratory data analysis (EDA)
+     - Export the cleaned dataset for use in model training
+
+> 📁 Make sure the cleaned dataset is saved in the expected path referenced by the application logic.
 
 ---
 
@@ -131,8 +141,6 @@ This chatbot uses a real-world GitHub helpdesk dataset containing issue threads 
 - Replaced raw URLs with a simple `<link>` tag.
 - Removed GitHub user mentions (e.g., `@user`) and internal issue references (e.g., `#123`).
 - Cleaned unnecessary whitespace and formatting inconsistencies while preserving important structure (code blocks, bullet points, etc.).
-
-➡️ Original Dataset: [Kaggle Github Helpdesk Tickets](https://www.kaggle.com/datasets/tobiasbueck/helpdesk-github-tickets)
 
 ### 🧪 Example Usage
 🗨️ "I'm facing a Serial Monitor freezing issue with my Arduino IDE. What could be the problem?"
