@@ -53,6 +53,20 @@ Install the following operators to enable full functionality:
 
 ---
 
+#### 4. **Application Deployment via Developer Console (S2I)**
+
+Deploy the chatbot application using the OpenShift Web Console:
+
+1. Navigate to the **Developer** perspective.
+2. Click the **➕ Add** button (left sidebar) and select **"From Git"**.
+3. Enter your Git repository URL.
+4. OpenShift will automatically detect the appropriate builder image (e.g., Python, Node.js).
+5. Configure the application name, resource limits, and target project/namespace as needed.
+6. Click **Create** to trigger a Source-to-Image (S2I) build and deployment.
+
+Once the build and deployment are complete, a route will be created to access the chatbot frontend.
+
+> ℹ️ This method uses the Source-to-Image (S2I) strategy under the hood.
 
 ## 🧩 How It Works
 
