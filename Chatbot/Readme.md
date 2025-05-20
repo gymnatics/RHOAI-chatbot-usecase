@@ -56,7 +56,7 @@ Install the following operators to enable full functionality:
 - **NVIDIA GPU Operator**
 - **Red Hat Service Mesh 2**
 - **Red Hat Serverless**
-- **Elasticsearch (ECK)** [Guide to setting up Elasticsearch and ElasticDB](https://developers.redhat.com/learning/learn:openshift-ai:demystify-rag-openshift-ai-and-elasticsearch/resource/resources:understand-and-implement-rag-openshift-ai)
+- **Elasticsearch (ECK):** [Guide to setting up Elasticsearch and ElasticDB](https://developers.redhat.com/learning/learn:openshift-ai:demystify-rag-openshift-ai-and-elasticsearch/resource/resources:understand-and-implement-rag-openshift-ai)
 - **OpenShift AI**
 
 ---
