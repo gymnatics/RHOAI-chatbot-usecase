@@ -48,9 +48,7 @@ To deploy this Chatbot Proof of Concept (PoC), ensure the following resources ar
 Ensure that OpenShift AI is properly deployed. Follow the official guide:  
 🔗 [Installing and Deploying OpenShift AI](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.20/html/installing_and_uninstalling_openshift_ai_self-managed/installing-and-deploying-openshift-ai_install)
 
----
-
-#### 3. **Required Operators**
+**Required Operators**
 
 Install the following operators to enable full functionality:
 
