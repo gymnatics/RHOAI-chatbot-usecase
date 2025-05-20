@@ -60,8 +60,13 @@ Install the following operators to enable full functionality:
 - **OpenShift AI**
 
 ---
+#### 3. **Create Vector Embeddings & Saving into ElasticSearch Vector Database**
 
-#### 3. **Application Deployment via Developer Console (S2I)**
+Run the cells under header: Create Embeddings in Elastic Vector Database in 2_vllm_rest_requests.ipynb
+This creates the elasticsearch client, and creates vectors from the cleaned dataset, and lastly uploads the embeddings into the vector database.
+---
+
+#### 4. **Application Deployment via Developer Console (S2I)**
 
 Deploy the chatbot application using the OpenShift Web Console:
 
