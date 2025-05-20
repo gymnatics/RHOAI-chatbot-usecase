@@ -60,10 +60,11 @@ Install the following operators to enable full functionality:
 - **OpenShift AI**
 
 ---
-#### 3. **Create Vector Embeddings & Saving into ElasticSearch Vector Database**
 
-Run the cells under header: Create Embeddings in Elastic Vector Database in 2_vllm_rest_requests.ipynb
-This creates the elasticsearch client, and creates vectors from the cleaned dataset, and lastly uploads the embeddings into the vector database.
+#### 3. **OpenShift AI Installation**  
+Run the cells under header 'Create Embeddings in Elastic Vector Database in 2_vllm_rest_requests.ipynb 
+This creates the elasticsearch client, creates vectors from the cleaned dataset, and lastly uploads the embeddings into the vector database.
+
 ---
 
 #### 4. **Application Deployment via Developer Console (S2I)**
