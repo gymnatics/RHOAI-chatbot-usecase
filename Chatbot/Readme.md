@@ -61,7 +61,7 @@ Install the following operators to enable full functionality:
 
 ---
 
-#### 3. **OpenShift AI Installation**  
+#### 3. **Create ElasticSearch Client & Embed Vectors into ElasticSearch Vector Database**  
 Run the cells under the header **"Create Embeddings in Elastic Vector Database"** in `2_vllm_rest_requests.ipynb`.  
 This notebook performs the following steps:
 - Creates the Elasticsearch client  
