@@ -122,7 +122,7 @@ Once the build and deployment are complete, a route will be created to access th
 | RAG Orchestration  | Custom lightweight backend logic (Python)       |
 | Cloud Deployment   | Red Hat Openshift Service on AWS (for backend + frontend hosting)       |
 
-## 📁 Folder Structure
+## 📁 Important Files and Folders
 
 ```plaintext
 📂 /Chatbot/.streamlit                    # Streamlit frontend configurations (user chat interface)
