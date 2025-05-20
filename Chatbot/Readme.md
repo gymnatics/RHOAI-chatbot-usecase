@@ -116,14 +116,14 @@ Once the build and deployment are complete, a route will be created to access th
 ## 📁 Folder Structure
 
 ```plaintext
-📂 app/                    # Streamlit frontend (user chat interface)
-📂 backend_chatbot/         # Chatbot backend logic (send_message, RAG retrieval, reset_conversation)
-📂 data/                    # Raw + cleaned GitHub helpdesk data
-📂 embeddings/              # Scripts to create and upload embeddings to Elasticsearch
-📂 models/                  # (Optional) Model configs and deployment scripts
-📂 scripts/                 # Data cleaning, processing, ETL
+📂 /Chatbot/.streamlit                    # Streamlit frontend configurations (user chat interface)
+📂 /Chatbot/multi-qa-MiniLM-L6-cos-v1     # Lightweight Sentence embedding model
+📂 /Chatbot/tokenizer                     # Tokenizer for embedding model
+cleaned_helpdesk_data.csv                 # Cleaned GitHub helpdesk data
+2_vllm_rest_requests.ipynb                # Scripts to create and upload embeddings to Elasticsearch
+backend_chatbot.py                        # Scripts to build prompt using RAG + User Prompt
 requirements.txt            # All Python dependencies
-README.md                   # This file
+Readme.md                   # This file
 ```
 ## 📚 Dataset Description: GitHub Issue Helpdesk Conversations
 This chatbot uses a real-world GitHub helpdesk dataset containing issue threads and solutions extracted from open-source repositories.
