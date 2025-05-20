@@ -21,7 +21,7 @@ To deploy this Chatbot Proof of Concept (PoC), ensure the following resources ar
 #### 1. **OpenShift Cluster**  
 > *(This PoC uses **ROSA** – Red Hat OpenShift Service on AWS)*<br>
 
-> *(The ROSA OPen Environment has since changed and is no longer usable for AI PoCs. Please use a different Demo Environment, such as Blank AWS or Nvidia GPU Operator on OCP4)*<br>
+> *(The ROSA Open Environment has since changed and is no longer usable for AI PoCs. Please use a different Demo Environment, such as Blank AWS or Nvidia GPU Operator on OCP4)*<br>
 
 > *(This is the minimium viable amount of compute resources for a PoC, recommended number of worker nodes is 2 non-GPU worker nodes and 1 GPU worker node)*<br>
 - **Compute Nodes:**
@@ -61,7 +61,7 @@ Install the following operators to enable full functionality:
 
 ---
 
-#### 4. **Application Deployment via Developer Console (S2I)**
+#### 3. **Application Deployment via Developer Console (S2I)**
 
 Deploy the chatbot application using the OpenShift Web Console:
 
