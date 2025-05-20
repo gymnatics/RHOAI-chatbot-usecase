@@ -62,7 +62,7 @@ Install the following operators to enable full functionality:
 ---
 
 #### 3. **OpenShift AI Installation**  
-Run the cells under header 'Create Embeddings in Elastic Vector Database in 2_vllm_rest_requests.ipynb 
+Run the cells under header 'Create Embeddings in Elastic Vector Database in 2_vllm_rest_requests.ipynb. 
 This creates the elasticsearch client, creates vectors from the cleaned dataset, and lastly uploads the embeddings into the vector database.
 
 ---
