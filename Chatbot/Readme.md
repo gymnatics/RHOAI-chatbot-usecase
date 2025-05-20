@@ -79,22 +79,28 @@ Once the build and deployment are complete, a route will be created to access th
 ## 🧩 How It Works
 
 1. **Semantic Retrieval**
-   - User question is converted into an embedding vector.
-   - Search for the top matching GitHub answers stored in Elasticsearch.
+   - User questions are first converted into embedding vectors using a SentenceTransformer model.
+   - These vectors are then used to perform a **kNN search** on **Elasticsearch**, which retrieves the top matching GitHub answers from the indexed issue threads.
 
 2. **Context Injection**
-   - Retrieved past discussions are optionally injected into the conversation if they are truly relevant.
+   - Retrieved GitHub threads are optionally injected into the prompt **only if their relevance score exceeds a threshold**.
+   - This helps the model ground its response in real examples without hallucinating or misinterpreting irrelevant data.
 
 3. **Behavior-Aware Chat**
-   - If the user query is vague, the chatbot dynamically asks guiding questions.
-   - If clarification is still partial, the bot follows up intelligently.
-   - After multiple unclear rounds, it suggests general causes politely.
+   - If the user input is vague or uncertain, the chatbot automatically asks up to 5 short guiding questions.
+   - If clarification remains partial, it follows up with a single, concise question.
+   - After 2 failed clarification rounds, it suggests **general causes** based on common troubleshooting patterns.
 
 4. **LLM Reasoning**
-   - A lightweight LLM model hosted on OpenShift AI generates conversational responses.
+   - The chatbot uses the **Granite 3.2 8B** large language model hosted on **OpenShift AI**, served through a **vLLM-based inference server**.
+   - It operates via a **completions-style prompt format**, optimized for compatibility with vLLM 0.7.3.
+   - The prompt includes structured instructions, injected context (when available), and anti-hallucination safeguards.
+   - This enables the LLM to generate concise, helpful, and safe responses tailored to the user query and relevant GitHub history.
 
 5. **Frontend Experience**
-   - A clean Streamlit app shows user questions, assistant responses, and tracks the chat history interactively.
+   - A clean **Streamlit** interface enables interactive conversations.
+   - It displays the user’s question, assistant replies, and maintains persistent **chat history** for continuity across turns.
+
 
 ## 🛠️ Tech Stack
 
