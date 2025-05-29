@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from chatbot-medical import send_message, reset_conversation  # 🧠 your local backend functions
+from chatbot_medical import send_message, reset_conversation  # 🧠 your local backend functions
 
 # --- Hide Streamlit default elements
 hide_streamlit_style = """
