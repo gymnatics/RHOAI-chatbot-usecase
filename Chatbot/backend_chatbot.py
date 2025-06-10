@@ -163,7 +163,7 @@ def send_message(user_query):
 
     # Send to inference server
     payload = {
-        "model": "model",
+        "model": "granite-8b-instruct",
         "messages": messages,
         "max_tokens": 512,
         "temperature": 0.3,
