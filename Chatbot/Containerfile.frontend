@@ -3,18 +3,21 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
-# Copy only the Chatbot folder content into /app
+# Copy essential files first to optimize Docker layer caching
+COPY Chatbot/requirements.txt Chatbot/.streamlit/ Chatbot/multi-qa-MiniLM-L6-cos-v1/ Chatbot/backend_chatbot.py Chatbot/test_streamlit.py ./
+
+# Upgrade pip and install dependencies with cache cleanup
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy remaining application files (e.g., utils, modules, etc.)
 COPY Chatbot /app
 
-# Install Python dependencies
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# Set the Streamlit config environment variable
+# Set Streamlit config
 ENV STREAMLIT_CONFIG_FILE=./.streamlit/config.toml
 
-# Expose the port used by Streamlit
+# Expose port
 EXPOSE 8501
 
-# Run Streamlit application
+# Run the Streamlit app
 CMD ["streamlit", "run", "test_streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
