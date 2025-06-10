@@ -62,7 +62,7 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
     es_password = os.environ.get("elastic_password")
 
     es = Elasticsearch(
-        hosts=["https://elasticsearch-sample-elasticsearch.apps.rosa-t59w8.oufo.p1.openshiftapps.com"],
+        hosts=["https://elasticsearch-sample-demo-chatbot.apps.cluster-c5xdq.c5xdq.sandbox1264.opentlc.com"],
         basic_auth=(es_user, es_password),
         verify_certs=False
     )
