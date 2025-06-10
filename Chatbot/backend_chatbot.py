@@ -174,8 +174,8 @@ def send_message(user_query):
         "stream": False
     }
 
-    infer_url = "http://model-predictor.minio.svc.cluster.local:8080/v1/chat/completions"
-    response = requests.post(infer_url, json=payload)
+    infer_url = "https://granite-8b-instruct.demo-chatbot.svc.cluster.local/v1/chat/completions"
+    response = requests.post(infer_url, json=payload, verify=False)
 
     if response.status_code == 200:
         reply = response.json()['choices'][0]['message']['content'].strip()
