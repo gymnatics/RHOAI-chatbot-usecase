@@ -65,7 +65,7 @@ def retrieve_most_relevant_embeddings(user_query, top_n=3):
 
 
     es = Elasticsearch(
-        hosts=["https://elasticsearch-sample-demo-chatbot.apps.cluster-c5xdq.c5xdq.sandbox1264.opentlc.com"],
+        hosts=["https://elasticsearch-demo-chatbot-demo.apps.cluster-6v9qz.6v9qz.sandbox1111.opentlc.com"],
         basic_auth=(es_user, es_password),
         verify_certs=False
     )
