@@ -58,8 +58,11 @@ def build_context(top_matches):
     return "\n\n---\n\n".join(match['answer_body'] for match in top_matches)
 
 def retrieve_most_relevant_embeddings(user_query, top_n=3):
-    es_user = os.environ.get("elastic_user")
-    es_password = os.environ.get("elastic_password")
+    # es_user = os.environ.get("elastic_user")
+    # es_password = os.environ.get("elastic_password")
+    es_user = "myadmin"
+    es_password = "newpassword123"
+
 
     es = Elasticsearch(
         hosts=["https://elasticsearch-sample-demo-chatbot.apps.cluster-c5xdq.c5xdq.sandbox1264.opentlc.com"],
@@ -163,7 +166,7 @@ def send_message(user_query):
 
     # Send to inference server
     payload = {
-        "model": "model",
+        "model": "qwen3-fp8-dynamic",
         "messages": messages,
         "max_tokens": 512,
         "temperature": 0.3,
@@ -174,7 +177,7 @@ def send_message(user_query):
         "stream": False
     }
 
-    infer_url = "http://model-predictor.minio.svc.cluster.local:8080/v1/chat/completions"
+    infer_url = "https://qwen3-fp8-dynamic-chatbot-demo.apps.cluster-6v9qz.6v9qz.sandbox1111.opentlc.com/v1/chat/completions"
     response = requests.post(infer_url, json=payload)
 
     if response.status_code == 200:
