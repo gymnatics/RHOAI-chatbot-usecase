@@ -1,0 +1,6 @@
+numpy==1.26.4
+scikit-learn==1.4.2
+sentence-transformers>=2.5.0
+elasticsearch==8.10.0
+requests==2.31.0
+streamlit==1.32.2  # optional UI
